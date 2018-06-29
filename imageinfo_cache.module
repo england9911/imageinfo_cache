@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ */
+
+use Drupal\image\Entity\ImageStyle;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_insert().
+ * Generate all image styles once an Image is uploaded.
+ */
+function imageinfo_cache_entity_insert(EntityInterface $entity) {
+  /** @var \Drupal\file\Entity\File $entity */
+  if ($entity instanceof FileInterface) {
+    $image = \Drupal::service('image.factory')->get($entity->getFileUri());
+    /** @var \Drupal\Core\Image\Image $image */
+    if ($image->isValid()) {
+      $styles = ImageStyle::loadMultiple();
+      $image_uri = $entity->getFileUri();
+      /** @var \Drupal\image\Entity\ImageStyle $style */
+      foreach ($styles as $style) {
+        $destination = $style->buildUri($image_uri);
+        $style->createDerivative($image_uri, $destination);
+      }
+    }
+  }
+}
+
+
+// @TODO: Admin page to decide:
+//    - For each:
+//      - Content type
+//        - Image field, which styles get generated automatically
+//    - E.g. the same image field on a different content type can have different image styles generated.

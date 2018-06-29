@@ -1,0 +1,7 @@
+name: Imageinfo Cache
+description: 'Generate imagecache presets in the background.'
+package: Other
+type: module
+core: 8.x
+dependencies:
+  - image
